@@ -3,6 +3,7 @@ keyboard
 ========
 
 Take full control of your keyboard with this small Python library. Hook global events, register hotkeys, simulate key presses and much more.
+使用这个小Python库可以完全控制键盘。钩住全局事件，注册热键，模拟按键等等。
 
 ## Features
 
@@ -20,22 +21,38 @@ Take full control of your keyboard with this small Python library. Hook global e
 - Doesn't break accented dead keys (I'm looking at you, pyHook).
 - Mouse support available via project [mouse](https://github.com/boppreh/mouse) (`pip install mouse`).
 
-## Usage
+# 特征
 
-Install the [PyPI package](https://pypi.python.org/pypi/keyboard/):
+- **Global event hook** 在所有键盘上（无论焦点如何捕捉按键）。
+- **Listen** and **send** 键盘事件 （监听和发送）
+- 使用 **Windows** 和 **Linux** (需要 sudo), 实验性的 **OS X** 支持 (感谢 @glitchassassin!).
+- **Pure Python**, 没有要编译的C模块。（纯python）
+- **Zero dependencies**. 安装和部署很简单，只需复制文件即可。
+- **Python 2 and 3**.
+-复杂的热键支持 (例如 `ctrl+shift+m, ctrl+space`) 具有可控超时。
+- 包括 **high level API** (例如 [record](#keyboard.record) 和 [play](#keyboard.play), [add_abbreviation](#keyboard.add_abbreviation)).
+- 将关键点映射为它们在布局中的实际位置, 具有 **完全国际化支持** (例如 `Ctrl+ç`).
+- 事件在单独的线程中自动捕获，不会阻塞主程序。
+- 测试和记录。
+- 不会破坏重音死键 (我说的就是你, pyHook).
+- 鼠标支持通过此项目提供 [mouse](https://github.com/boppreh/mouse) (`pip install mouse`).
+
+## 用法
+
+安装 [PyPI package](https://pypi.python.org/pypi/keyboard/):
 
     pip install keyboard
 
-or clone the repository (no installation required, source files are sufficient):
+或者克隆存储库 (无需安装，源文件足够):
 
     git clone https://github.com/boppreh/keyboard
 
-or [download and extract the zip](https://github.com/boppreh/keyboard/archive/master.zip) into your project folder.
+或者 [下载并解压缩zip](https://github.com/boppreh/keyboard/archive/master.zip) 到项目文件夹中。
 
-Then check the [API docs below](https://github.com/boppreh/keyboard#api) to see what features are available.
+然后检查 [API文档如下](https://github.com/boppreh/keyboard#api) 查看哪些功能可用。
 
 
-## Example
+## 例子
 
 Use as library:
 
@@ -112,46 +129,46 @@ while True:
     time.sleep(1000000)
 ```
 
-### Waiting for a key press one time
+### 等待一次按键
 
 ```py
 import keyboard
 
-# Don't do this! This will use 100% of your CPU until you press the key.
+# 别这样！这将使用100%的CPU，直到你按下键。
 #
 #while not keyboard.is_pressed('space'):
 #    continue
-#print('space was pressed, continuing...')
+#print('空格按下, 继续...')
 
 # Do this instead
 keyboard.wait('space')
-print('space was pressed, continuing...')
+print('空格按下, 继续...')
 ```
 
-### Repeatedly waiting for a key press
+### 反复等待按键
 
 ```py
 import keyboard
 
-# Don't do this!
+# 别这样！
 #
 #while True:
 #    if keyboard.is_pressed('space'):
-#        print('space was pressed!')
+#        print('空格按下！')
 #
-# This will use 100% of your CPU and print the message many times.
+# 这将使用100%的CPU和打印消息多次。
 
-# Do this instead
+# 改为这样做
 while True:
     keyboard.wait('space')
     print('space was pressed! Waiting on it again...')
 
-# or this
+# 或者这个
 keyboard.add_hotkey('space', lambda: print('space was pressed!'))
 keyboard.wait()
 ```
 
-### Invoking code when an event happens
+### 事件发生时调用代码
 
 ```py
 import keyboard
@@ -168,7 +185,7 @@ def on_space():
 keyboard.add_hotkey('space', on_space)
 ```
 
-### 'Press any key to continue'
+### '按任意键继续'
 
 ```py
 # Don't do this! The `keyboard` module is meant for global events, even when your program is not in focus.
@@ -188,53 +205,53 @@ input('Press enter to continue...')
 # API
 #### Table of Contents
 
-- [keyboard.**KEY\_DOWN**](#keyboard.KEY_DOWN)
-- [keyboard.**KEY\_UP**](#keyboard.KEY_UP)
-- [keyboard.**KeyboardEvent**](#keyboard.KeyboardEvent)
-- [keyboard.**all\_modifiers**](#keyboard.all_modifiers)
-- [keyboard.**sided\_modifiers**](#keyboard.sided_modifiers)
-- [keyboard.**version**](#keyboard.version)
-- [keyboard.**is\_modifier**](#keyboard.is_modifier)
-- [keyboard.**key\_to\_scan\_codes**](#keyboard.key_to_scan_codes)
-- [keyboard.**parse\_hotkey**](#keyboard.parse_hotkey)
-- [keyboard.**send**](#keyboard.send) *(aliases: `press_and_release`)*
-- [keyboard.**press**](#keyboard.press)
-- [keyboard.**release**](#keyboard.release)
-- [keyboard.**is\_pressed**](#keyboard.is_pressed)
-- [keyboard.**call\_later**](#keyboard.call_later)
-- [keyboard.**hook**](#keyboard.hook)
-- [keyboard.**on\_press**](#keyboard.on_press)
-- [keyboard.**on\_release**](#keyboard.on_release)
-- [keyboard.**hook\_key**](#keyboard.hook_key)
-- [keyboard.**on\_press\_key**](#keyboard.on_press_key)
-- [keyboard.**on\_release\_key**](#keyboard.on_release_key)
-- [keyboard.**unhook**](#keyboard.unhook) *(aliases: `unblock_key`, `unhook_key`, `unremap_key`)*
-- [keyboard.**unhook\_all**](#keyboard.unhook_all)
-- [keyboard.**block\_key**](#keyboard.block_key)
-- [keyboard.**remap\_key**](#keyboard.remap_key)
-- [keyboard.**parse\_hotkey\_combinations**](#keyboard.parse_hotkey_combinations)
-- [keyboard.**add\_hotkey**](#keyboard.add_hotkey) *(aliases: `register_hotkey`)*
-- [keyboard.**remove\_hotkey**](#keyboard.remove_hotkey) *(aliases: `clear_hotkey`, `unregister_hotkey`, `unremap_hotkey`)*
-- [keyboard.**unhook\_all\_hotkeys**](#keyboard.unhook_all_hotkeys) *(aliases: `clear_all_hotkeys`, `remove_all_hotkeys`, `unregister_all_hotkeys`)*
-- [keyboard.**remap\_hotkey**](#keyboard.remap_hotkey)
-- [keyboard.**stash\_state**](#keyboard.stash_state)
-- [keyboard.**restore\_state**](#keyboard.restore_state)
-- [keyboard.**restore\_modifiers**](#keyboard.restore_modifiers)
-- [keyboard.**write**](#keyboard.write)
-- [keyboard.**wait**](#keyboard.wait)
-- [keyboard.**get\_hotkey\_name**](#keyboard.get_hotkey_name)
-- [keyboard.**read\_event**](#keyboard.read_event)
-- [keyboard.**read\_key**](#keyboard.read_key)
-- [keyboard.**read\_hotkey**](#keyboard.read_hotkey)
-- [keyboard.**get\_typed\_strings**](#keyboard.get_typed_strings)
-- [keyboard.**start\_recording**](#keyboard.start_recording)
-- [keyboard.**stop\_recording**](#keyboard.stop_recording)
-- [keyboard.**record**](#keyboard.record)
-- [keyboard.**play**](#keyboard.play) *(aliases: `replay`)*
-- [keyboard.**add\_word\_listener**](#keyboard.add_word_listener) *(aliases: `register_word_listener`)*
-- [keyboard.**remove\_word\_listener**](#keyboard.remove_word_listener) *(aliases: `remove_abbreviation`)*
-- [keyboard.**add\_abbreviation**](#keyboard.add_abbreviation) *(aliases: `register_abbreviation`)*
-- [keyboard.**normalize\_name**](#keyboard.normalize_name)
+- [keyboard.**KEY\_DOWN按键按下**](#keyboard.KEY_DOWN)
+- [keyboard.**KEY\_UP按键上升**](#keyboard.KEY_UP)
+- [keyboard.**KeyboardEvent键盘事件**](#keyboard.KeyboardEvent)
+- [keyboard.**all\_modifiers所有修饰符**](#keyboard.all_modifiers)
+- [keyboard.**sided\_modifiers侧边修饰符**](#keyboard.sided_modifiers)
+- [keyboard.**version版本**](#keyboard.version)
+- [keyboard.**is\_modifier是否修饰符**](#keyboard.is_modifier)
+- [keyboard.**key\_to\_scan\_codes按键到扫描 代码**](#keyboard.key_to_scan_codes)
+- [keyboard.**parse\_hotkey解析热键**](#keyboard.parse_hotkey)
+- [keyboard.**send发送**](#keyboard.send) *(aliases: `press_and_release`)*
+- [keyboard.**press按**](#keyboard.press)
+- [keyboard.**release释放**](#keyboard.release)
+- [keyboard.**is\_pressed是否按下**](#keyboard.is_pressed)
+- [keyboard.**call\_later稍后执行**](#keyboard.call_later)
+- [keyboard.**hook钩子**](#keyboard.hook)
+- [keyboard.**on\_press按下**](#keyboard.on_press)
+- [keyboard.**on\_release释放**](#keyboard.on_release)
+- [keyboard.**hook\_key钩子 键**](#keyboard.hook_key)
+- [keyboard.**on\_press\_key按键按下回调**](#keyboard.on_press_key)
+- [keyboard.**on\_release\_key按键释放回调**](#keyboard.on_release_key)
+- [keyboard.**unhook脱钩**](#keyboard.unhook) *(aliases: `unblock_key`, `unhook_key`, `unremap_key`)*
+- [keyboard.**unhook\_all脱钩所有**](#keyboard.unhook_all)
+- [keyboard.**block\_key拦截键**](#keyboard.block_key)
+- [keyboard.**remap\_key重新映射键**](#keyboard.remap_key)
+- [keyboard.**parse\_hotkey\_combinations解析热键组合**](#keyboard.parse_hotkey_combinations)
+- [keyboard.**add\_hotkey新增热键**](#keyboard.add_hotkey) *(aliases: `register_hotkey`)*
+- [keyboard.**remove\_hotkey移除热键**](#keyboard.remove_hotkey) *(aliases: `clear_hotkey`, `unregister_hotkey`, `unremap_hotkey`)*
+- [keyboard.**unhook\_all\_hotkeys解开所有热键**](#keyboard.unhook_all_hotkeys) *(aliases: `clear_all_hotkeys`, `remove_all_hotkeys`, `unregister_all_hotkeys`)*
+- [keyboard.**remap\_hotkey重新映射热键**](#keyboard.remap_hotkey)
+- [keyboard.**stash\_state隐藏状态**](#keyboard.stash_state)
+- [keyboard.**restore\_state还原状态**](#keyboard.restore_state)
+- [keyboard.**restore\_modifiers还原修饰键**](#keyboard.restore_modifiers)
+- [keyboard.**write写入**](#keyboard.write)
+- [keyboard.**wait等待**](#keyboard.wait)
+- [keyboard.**get\_hotkey\_name读取热键名称**](#keyboard.get_hotkey_name)
+- [keyboard.**read\_event读取事件**](#keyboard.read_event)
+- [keyboard.**read\_key读取键**](#keyboard.read_key)
+- [keyboard.**read\_hotkey读取热键**](#keyboard.read_hotkey)
+- [keyboard.**get\_typed\_strings获取输入字符串**](#keyboard.get_typed_strings)
+- [keyboard.**start\_recording开始录制**](#keyboard.start_recording)
+- [keyboard.**stop\_recording停止录制**](#keyboard.stop_recording)
+- [keyboard.**record记录**](#keyboard.record)
+- [keyboard.**play播放**](#keyboard.play) *(aliases: `replay`)*
+- [keyboard.**add\_word\_listener新增文字监听**](#keyboard.add_word_listener) *(aliases: `register_word_listener`)*
+- [keyboard.**remove\_word\_listener移除文字监听**](#keyboard.remove_word_listener) *(aliases: `remove_abbreviation`)*
+- [keyboard.**add\_abbreviation新增缩写**](#keyboard.add_abbreviation) *(aliases: `register_abbreviation`)*
+- [keyboard.**normalize\_name规范化名称**](#keyboard.normalize_name)
 
 
 <a name="keyboard.KEY_DOWN"/>
