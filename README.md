@@ -107,23 +107,32 @@ python -m keyboard < events.txt
 - Other applications, such as some games, may register hooks that swallow all key events. In this case `keyboard` will be unable to report events.
 - This program makes no attempt to hide itself, so don't use it for keyloggers or online gaming bots. Be responsible.
 - SSH connections forward only the text typed, not keyboard events. Therefore if you connect to a server or Raspberry PI that is running `keyboard` via SSH, the server will not detect your key events.
+## 已知限制:
 
-## Common patterns and mistakes
+- 在Windows下生成的事件不报告设备id (`event.device == None`). [#21](https://github.com/boppreh/keyboard/issues/21)
+- Linux上的媒体控制按键可能会显示为无名（仅扫描代码）或根本不存在 [#20](https://github.com/boppreh/keyboard/issues/20)
+- 按键抑制/锁定（suppression/blocking）仅在Windows上可用 [#22](https://github.com/boppreh/keyboard/issues/22)
+- 为了避免依赖于X，Linux部件读取原始设备文件（`/dev/input/input*`），但这需要root。
+- 其他应用程序，如一些游戏，可能会注册吞下所有关键事件的钩子。在这种情况下，`keyboard`将无法报告事件。
+- 这个程序没有试图隐藏自己，所以不要使用它的键盘记录器或在线游戏机器人。负责任。
+- SSH   连接只转发键入的文本，而不转发键盘事件。因此，如果您运行 `keyboard`通过SSH,连接服务器或者树莓派，服务器将无法检测到您的按键事件
 
-### Preventing the program from closing
+## 常见模式和错误
+
+### 阻止程序关闭
 
 ```py
 import keyboard
 keyboard.add_hotkey('space', lambda: print('space was pressed!'))
-# If the program finishes, the hotkey is not in effect anymore.
+# 如果程序完成，热键将不再有效。
 
-# Don't do this! This will use 100% of your CPU.
+# 别这样！这将使用100%的CPU。
 #while True: pass
 
-# Use this instead
+# 改用这个
 keyboard.wait()
 
-# or this
+# 或者这个
 import time
 while True:
     time.sleep(1000000)
@@ -140,7 +149,7 @@ import keyboard
 #    continue
 #print('空格按下, 继续...')
 
-# Do this instead
+# 改为这样做
 keyboard.wait('space')
 print('空格按下, 继续...')
 ```
@@ -173,13 +182,13 @@ keyboard.wait()
 ```py
 import keyboard
 
-# Don't do this! This will call `print('space')` immediately then fail when the key is actually pressed.
+# 别这样！这将立即调用“print（'space'）”，然后在实际按键时失败。
 #keyboard.add_hotkey('space', print('space was pressed'))
 
-# Do this instead
+# 改为这样做
 keyboard.add_hotkey('space', lambda: print('space was pressed'))
 
-# or this
+# 或者这样做
 def on_space():
     print('space was pressed')
 keyboard.add_hotkey('space', on_space)
@@ -188,22 +197,22 @@ keyboard.add_hotkey('space', on_space)
 ### '按任意键继续'
 
 ```py
-# Don't do this! The `keyboard` module is meant for global events, even when your program is not in focus.
+# 别这样！“keyboard”模块用于全局事件，即使您的程序没有焦点。
 #import keyboard
 #print('Press any key to continue...')
 #keyboard.get_event()
 
-# Do this instead
+#改为这样做
 input('Press enter to continue...')
 
-# Or one of the suggestions from here
+# 或者这里的一个建议
 # https://stackoverflow.com/questions/983354/how-to-make-a-script-wait-for-a-pressed-key
 ```
 
 
 
 # API
-#### Table of Contents
+#### 目录
 
 - [keyboard.**KEY\_DOWN按键按下**](#keyboard.KEY_DOWN)
 - [keyboard.**KEY\_UP按键上升**](#keyboard.KEY_UP)
@@ -350,6 +359,7 @@ input('Press enter to continue...')
 
 
 Returns True if `key` is a scan code or name of a modifier key.
+如果`key`是修饰符的扫描代码或名称，则返回True
 
 
 
@@ -361,7 +371,7 @@ Returns True if `key` is a scan code or name of a modifier key.
 
 
 Returns a list of scan codes associated with this key (name or scan code).
-
+返回与此键关联的扫描代码列表（名称或扫描代码）。
 
 
 <a name="keyboard.parse_hotkey"/>
@@ -375,6 +385,9 @@ Parses a user-provided hotkey into nested tuples representing the
 parsed structure, with the bottom values being lists of scan codes.
 Also accepts raw scan codes, which are then wrapped in the required
 number of nestings.
+
+将用户提供的热键解析为表示解析的结构，底部的值是扫描代码列表。还接受原始扫描代码，然后将其包装在所需的嵌套数。
+
 
 Example:
 
@@ -397,11 +410,13 @@ parse_hotkey("alt+shift+a, alt+b, c")
 
 
 Sends OS events that perform the given *hotkey* hotkey.
+发送执行给定**hotkey*热键的操作系统事件。
 
 - `hotkey` can be either a scan code (e.g. 57 for space), single key
 (e.g. 'space') or multi-key, multi-step hotkey (e.g. 'alt+F4, enter').
-- `do_press` if true then press events are sent. Defaults to True.
-- `do_release` if true then release events are sent. Defaults to True.
+可以是扫描代码（例如，57表示空格），单键（例如“空格”）或多键、多步热键（例如“alt+F4，enter”）。
+- `do_press` if true then press events are sent. Defaults to True.如果为true，则发送按下事件。默认为True。
+- `do_release` if true then release events are sent. Defaults to True.如果为true，则发送释放事件。默认为True。
 
 ```py
 
@@ -411,7 +426,7 @@ send('alt+F4, enter')
 send('shift+s')
 ```
 
-Note: keys are released in the opposite order they were pressed.
+注意：按键按相反的顺序释放。
 
 
 
